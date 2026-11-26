@@ -1,0 +1,63 @@
+
+Min-heap
+PASS: heap pops in sorted order
+PASS: heap is empty after popping everything
+PASS: pop from empty heap raises IndexError
+
+Frequency table and tree
+PASS: frequency table counts
+PASS: empty input gives empty table
+PASS: abracadabra costs 23 bits (known answer)
+PASS: root frequency equals input length
+PASS: most frequent symbol has shortest code
+PASS: empty input builds no tree
+PASS: single symbol gets code 0
+PASS: two symbols get one bit each
+PASS: number of merges is k - 1
+PASS: tree is deterministic
+
+Properties on random inputs
+PASS: codes are prefix free (200 random inputs)
+PASS: cost equals independent heapq calculation (200 inputs)
+PASS: Kraft sum equals 1 (full binary tree)
+PASS: entropy <= cost < entropy + 1 bit per symbol
+PASS: never worse than fixed length codes
+PASS: skewed input gives a tall tree
+
+Encode and decode
+PASS: round trip, length 11, k = 5
+PASS: round trip, length 11, k = 8
+PASS: round trip, length 1, k = 1
+PASS: round trip, length 2, k = 2
+PASS: round trip, length 500, k = 1
+PASS: round trip, length 768, k = 256
+PASS: decode stops after count symbols
+PASS: bits that leave the tree raise ValueError
+PASS: string input round trip
+
+File compression
+PASS: pack_bits / unpack_bits round trip
+PASS: pack_bits pads to whole bytes
+PASS: compress/decompress 0 bytes
+PASS: compress/decompress 1 bytes
+PASS: compress/decompress 4 bytes
+PASS: compress/decompress 11 bytes
+PASS: compress/decompress 256 bytes
+PASS: compress/decompress 5000 bytes
+PASS: rejects wrong magic
+PASS: rejects short header
+PASS: rejects truncated table
+PASS: detects a truncated payload
+PASS: large.txt is smaller after compression
+PASS: large.txt restored byte for byte
+
+Sample data files
+PASS: large.txt round trips
+PASS: medium.txt round trips
+PASS: random.bin round trips
+PASS: repetitive.txt round trips
+PASS: small.txt round trips
+PASS: unicode.txt round trips
+PASS: random bytes barely compress (ratio near 1)
+
+Passed: 49  Failed: 0

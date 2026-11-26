@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Huffman Coding Studio</title>
+<style>
+:root{--bg:#eef2f4;--surf:#fff;--ink:#14232b;--mute:#5b6b74;--line:#d3dce1;--zero:#2b50e8;--one:#c97a00;--ok:#16794c;--bad:#b3261e;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f171c;--surf:#17222a;--ink:#e6eef2;--mute:#93a4ad;--line:#2b3b45;--zero:#7e98ff;--one:#f0b04a;--ok:#4cc38a;--bad:#ff8a80}}
+:root[data-theme="dark"]{--bg:#0f171c;--surf:#17222a;--ink:#e6eef2;--mute:#93a4ad;--line:#2b3b45;--zero:#7e98ff;--one:#f0b04a;--ok:#4cc38a;--bad:#ff8a80}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1000px;margin:0 auto;padding:28px 16px 64px}
+h1{font:600 clamp(2rem,6vw,3.2rem)/1.05 Georgia,"Iowan Old Style",serif;margin:0 0 8px;letter-spacing:-.01em}
+h2{font:600 1.25rem Georgia,serif;margin:0 0 10px}
+p.lead{color:var(--mute);max-width:62ch;margin:0 0 24px}
+section{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px}
+textarea{width:100%;min-height:120px;resize:vertical;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+button,label.btn{font:inherit;font-weight:600;padding:9px 16px;border-radius:8px;border:1px solid var(--line);background:var(--surf);color:var(--ink);cursor:pointer}
+button.pri{background:var(--zero);border-color:var(--zero);color:#fff}
+:root[data-theme="dark"] button.pri{color:#0f171c}
+button:focus-visible,label.btn:focus-within,textarea:focus-visible{outline:3px solid var(--one);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.stat b{display:block;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.stat span{color:var(--mute);font-size:.85rem}
+.scroll{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);font-size:.92rem}
+td.c{font-family:ui-monospace,Menlo,monospace}
+.bits{font:13px/1.6 ui-monospace,Menlo,monospace;word-break:break-all;background:var(--bg);border-radius:8px;padding:10px;max-height:160px;overflow:auto}
+.z{color:var(--zero);font-weight:700}.o{color:var(--one);font-weight:700}
+.tag{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:600;font-size:.85rem;border:1px solid currentColor}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+svg text{fill:var(--ink);font:600 13px ui-monospace,Menlo,monospace}
+svg .edge{stroke:var(--line);stroke-width:2;fill:none}
+svg .e0{stroke:var(--zero)}svg .e1{stroke:var(--one)}
+svg .nd{fill:var(--surf);stroke:var(--ink);stroke-width:1.5}
+svg .lf{fill:var(--bg);stroke:var(--ink);stroke-width:1.5}
+svg .l0{fill:var(--zero)}svg .l1{fill:var(--one)}
+details{margin-top:8px}summary{cursor:pointer;font-weight:600}
+.note{color:var(--mute);font-size:.88rem}
+.cx{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+</style>
+</head>
+<body>
+<main>
+<h1>Huffman Coding Studio</h1>
+<p class="lead">Type or upload text, then watch it become a frequency table, a Huffman tree, a stream of bits, and back again. Left branches are 0, right branches are 1.</p>
+
+<section>
+<h2>Input</h2>
+<textarea id="inp" aria-label="Text to compress" spellcheck="false">abracadabra alakazam! a banana bandana</textarea>
+<div class="row">
+<button class="pri" id="go">Compress</button>
+<label class="btn">Upload .txt<input id="file" type="file" accept=".txt,text/plain" hidden></label>
+<button id="sample">Load longer sample</button>
+<button id="theme" aria-label="Toggle theme">Theme</button>
+</div>
+</section>
+
+<div id="out" hidden>
+<section><h2>Size comparison</h2><div class="stats" id="stats"></div>
+<p class="note" id="hdrnote"></p></section>
+
+<section><h2>Huffman tree</h2>
+<div class="scroll" id="tree"></div>
+<details><summary>Merge steps</summary><div class="bits" id="steps"></div></details></section>
+
+<section><h2>Code table</h2><div class="scroll"><table id="tbl"></table></div></section>
+
+<section><h2>Encoded bits</h2><div class="bits" id="enc"></div>
+<div class="row"><span id="verify"></span></div></section>
+
+<section><h2>Decode bits</h2>
+<textarea id="dinp" aria-label="Bits to decode" placeholder="Paste bits (0s and 1s) here" spellcheck="false"></textarea>
+<div class="row"><button id="dec">Decode with this tree</button></div>
+<div class="bits" id="dout" style="margin-top:10px">Decoded text appears here.</div></section>
+
+<section><h2>Complexity</h2>
+<div class="cx">
+<div><b>Time</b><br>O(n + k log k)<br><span class="note">n characters, k distinct. Counting is O(n); the heap does k−1 merges at O(log k) each; encoding is O(n).</span></div>
+<div><b>Space</b><br>O(k)<br><span class="note">The tree has 2k−1 nodes. The output stream itself takes O(n) bits.</span></div>
+<div><b>Measured</b><br><span id="perf">–</span></div>
+</div></section>
+</div>
+</main>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+let id=0,root=null,codes=new Map();
+class Heap{constructor(){this.a=[]}
+lt(x,y){return x.f<y.f||(x.f===y.f&&x.id<y.id)}
+push(n){const a=this.a;a.push(n);let i=a.length-1;while(i>0){const p=(i-1)>>1;if(!this.lt(a[i],a[p]))break;[a[i],a[p]]=[a[p],a[i]];i=p}}
+pop(){const a=this.a,t=a[0],l=a.pop();if(a.length){a[0]=l;let i=0;for(;;){let m=i,L=2*i+1,R=L+1;if(L<a.length&&this.lt(a[L],a[m]))m=L;if(R<a.length&&this.lt(a[R],a[m]))m=R;if(m===i)break;[a[i],a[m]]=[a[m],a[i]];i=m}}return t}
+get size(){return this.a.length}}
+const show=c=>c===' '?'␣':c==='\n'?'\\n':c==='\t'?'\\t':c==='\r'?'\\r':c;
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const colorBits=s=>s.replace(/[01]/g,b=>'<span class="'+(b==='0'?'z':'o')+'">'+b+'</span>');
+
+function build(chars){
+  const freq=new Map();for(const c of chars)freq.set(c,(freq.get(c)||0)+1);
+  const h=new Heap(),steps=[];id=0;
+  for(const [c,f] of freq)h.push({c,f,id:id++});
+  while(h.size>1){const a=h.pop(),b=h.pop();
+    const n={f:a.f+b.f,l:a,r:b,id:id++};
+    steps.push((a.c!==undefined?'"'+show(a.c)+'"':'node')+'('+a.f+') + '+(b.c!==undefined?'"'+show(b.c)+'"':'node')+'('+b.f+') → '+n.f);
+    h.push(n)}
+  let r=h.pop();
+  if(r.c!==undefined)r={f:r.f,l:r,r:null,id:id++}; // single distinct symbol
+  const cm=new Map();
+  (function walk(n,p){if(!n)return;if(n.c!==undefined){cm.set(n.c,p||'0');return}walk(n.l,p+'0');walk(n.r,p+'1')})(r,'');
+  return{root:r,codes:cm,freq,steps};
+}
+function decode(bits,r){let out=[],n=r;
+  for(const b of bits){if(b!=='0'&&b!=='1')continue;
+    n=b==='0'?n.l:n.r;if(!n)throw new Error('Bits do not match this tree.');
+    if(n.c!==undefined){out.push(n.c);n=r}}
+  return out.join('');}
+
+function drawTree(r){
+  let leaf=0,maxD=0;const X=46,Y=64;
+  (function lay(n,d){maxD=Math.max(maxD,d);n.d=d;
+    if(n.c!==undefined){n.x=leaf++*X;return}
+    const kids=[n.l,n.r].filter(Boolean);kids.forEach(k=>lay(k,d+1));
+    n.x=kids.reduce((s,k)=>s+k.x,0)/kids.length})(r,0);
+  const W=Math.max(leaf*X+40,300),H=(maxD+1)*Y+40;let e='',v='';
+  (function dr(n){const x=n.x+30,y=n.d*Y+28;
+    [[n.l,0],[n.r,1]].forEach(([k,b])=>{if(!k)return;const kx=k.x+30,ky=k.d*Y+28;
+      e+='<path class="edge e'+b+'" d="M'+x+' '+y+' L'+kx+' '+ky+'"/>';
+      e+='<text class="l'+b+'" x="'+((x+kx)/2+(b?9:-9))+'" y="'+((y+ky)/2+4)+'" text-anchor="middle" style="fill:var(--'+(b?'one':'zero')+')">'+b+'</text>';
+      dr(k)});
+    if(n.c!==undefined)v+='<rect class="lf" x="'+(x-17)+'" y="'+(y-15)+'" width="34" height="30" rx="6"/><text x="'+x+'" y="'+(y+4)+'" text-anchor="middle">'+esc(show(n.c))+'</text><text x="'+x+'" y="'+(y+28)+'" text-anchor="middle" style="font-size:11px;fill:var(--mute)">'+n.f+'</text>';
+    else v+='<circle class="nd" cx="'+x+'" cy="'+y+'" r="15"/><text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" style="font-size:11px">'+n.f+'</text>';
+  })(r);
+  $('tree').innerHTML='<svg width="'+W+'" height="'+H+'" role="img" aria-label="Huffman tree">'+e+v+'</svg>';
+}
+
+function run(){
+  const text=$('inp').value;
+  if(!text){alert('Enter some text or upload a file first.');return}
+  const chars=Array.from(text);
+  const t0=performance.now();
+  const T=build(chars);root=T.root;codes=T.codes;
+  const t1=performance.now();
+  const parts=new Array(chars.length);for(let i=0;i<chars.length;i++)parts[i]=codes.get(chars[i]);
+  const bits=parts.join('');
+  const t2=performance.now();
+  let back,ok=false;try{back=decode(bits,root);ok=back===text}catch(e){back=''}
+  const t3=performance.now();
+  const origBits=new TextEncoder().encode(text).length*8,k=codes.size;
+  const hdr=k*16,total=bits.length+hdr;
+  const pct=(1-bits.length/origBits)*100;
+  const S=(v,l)=>'<div class="stat"><b>'+v+'</b><span>'+l+'</span></div>';
+  $('stats').innerHTML=S(origBits.toLocaleString(),'original bits (UTF-8)')+S(bits.length.toLocaleString(),'compressed bits')+S(pct.toFixed(1)+'%','space saved')+S((origBits/bits.length).toFixed(2)+'×','compression ratio')+S(k,'distinct symbols')+S((bits.length/chars.length).toFixed(2),'avg bits per symbol');
+  $('hdrnote').textContent='Estimated with a stored code table (about 16 bits per symbol): '+total.toLocaleString()+' bits total, '+((1-total/origBits)*100).toFixed(1)+'% saved. Very short texts can come out larger once the table is counted.';
+  drawTree(root);
+  $('steps').innerHTML=T.steps.length?T.steps.map((s,i)=>(i+1)+'. '+esc(s)).join('<br>'):'Only one distinct symbol, so no merges were needed.';
+  const rows=[...codes].sort((a,b)=>T.freq.get(b[0])-T.freq.get(a[0])||a[1].length-b[1].length);
+  $('tbl').innerHTML='<tr><th>Symbol</th><th>Frequency</th><th>Code</th><th>Code length</th><th>Bits used</th></tr>'+rows.map(([c,cd])=>'<tr><td>'+esc(show(c))+'</td><td>'+T.freq.get(c)+'</td><td class="c">'+colorBits(cd)+'</td><td>'+cd.length+'</td><td>'+cd.length*T.freq.get(c)+'</td></tr>').join('');
+  const LIM=3000;
+  $('enc').innerHTML=colorBits(bits.slice(0,LIM))+(bits.length>LIM?'<br><span class="note">…showing first '+LIM+' of '+bits.length.toLocaleString()+' bits</span>':'');
+  $('verify').innerHTML=ok?'<span class="tag ok">Round trip verified: decoded text matches the original</span>':'<span class="tag bad">Decoded text does not match</span>';
+  $('dinp').value=bits.slice(0,200);
+  $('dout').textContent='Decoded text appears here.';
+  $('perf').innerHTML='Build tree: '+(t1-t0).toFixed(2)+' ms<br>Encode: '+(t2-t1).toFixed(2)+' ms<br>Decode: '+(t3-t2).toFixed(2)+' ms<br><span class="note">n = '+chars.length.toLocaleString()+', k = '+k+'</span>';
+  $('out').hidden=false;
+}
+$('go').onclick=run;
+$('dec').onclick=()=>{if(!root){$('dout').textContent='Compress some text first.';return}
+  try{$('dout').textContent=decode($('dinp').value,root)||'(nothing decoded; add more bits)'}catch(e){$('dout').textContent=e.message}};
+$('file').onchange=e=>{const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>{$('inp').value=r.result;run()};r.readAsText(f)};
+$('sample').onclick=()=>{$('inp').value=('It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness. ').repeat(6);run()};
+$('theme').onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue('--bg').trim()==='#0f171c';d.setAttribute('data-theme',dark?'light':'dark')};
+run();
+})();
+</script>
+</body>
+</html>

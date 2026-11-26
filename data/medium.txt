@@ -1,0 +1,3 @@
+Data compression reduces the number of bits needed to store information. Lossless methods such as Huffman coding let the original data be rebuilt exactly. The idea is simple: symbols that appear often get short codes, and symbols that appear rarely get long codes. No code is the prefix of another, so a stream of bits can be decoded without any separators.
+
+David Huffman found the method in 1952 while he was a student at MIT. His algorithm repeatedly joins the two least frequent symbols into a new node until only one tree is left. Reading the path from the root to a leaf gives the code of that symbol: left is 0 and right is 1. A priority queue makes each step fast, so the whole construction takes O(k log k) time for k different symbols.

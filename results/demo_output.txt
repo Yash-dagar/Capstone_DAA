@@ -1,0 +1,99 @@
+==================================================
+ Huffman Coding File Compressor
+==================================================
+Loaded 'small.txt': 39 bytes, 13 distinct symbols.
+
+Current input: small.txt
+1. Choose input (sample, typed text or your file)
+2. Show frequency table
+3. Build tree: merge steps and Huffman codes
+4. Draw the Huffman tree
+5. Encode and show the bits
+6. Decode and verify
+7. Compress to a .huf file
+8. Decompress a .huf file
+9. Compare sizes
+10. Run performance analysis
+11. Exit
+Enter your choice: 
+Merge steps (12 merges for 13 symbols):
+   1. 1 + 1 -> 2
+   2. 1 + 1 -> 2
+   3. 1 + 1 -> 2
+   4. 1 + 2 -> 3
+   5. 2 + 2 -> 4
+   6. 2 + 2 -> 4
+   7. 3 + 4 -> 7
+   8. 4 + 4 -> 8
+   9. 4 + 4 -> 8
+  10. 7 + 8 -> 15
+  11. 8 + 15 -> 23
+  12. 16 + 23 -> 39
+
+Symbol    Frequency Code                     Length  Bits used
+----------------------------------------------------------------
+a                16 0                             1         16
+space             4 1101                          4         16
+b                 4 1110                          4         16
+n                 4 1111                          4         16
+r                 2 1000                          4          8
+\n                1 10010                         5          5
+!                 1 10011                         5          5
+c                 1 10100                         5          5
+d                 2 11001                         5         10
+k                 1 10101                         5          5
+l                 1 10110                         5          5
+m                 1 10111                         5          5
+z                 1 11000                         5          5
+
+Current input: small.txt
+1. Choose input (sample, typed text or your file)
+2. Show frequency table
+3. Build tree: merge steps and Huffman codes
+4. Draw the Huffman tree
+5. Encode and show the bits
+6. Decode and verify
+7. Compress to a .huf file
+8. Decompress a .huf file
+9. Compare sizes
+10. Run performance analysis
+11. Exit
+Enter your choice: 
+Method                             Size (bytes)   vs 8-bit
+----------------------------------------------------------
+Original (8 bits per symbol)                 39     100.0%
+Fixed length (4 bits per symbol)             20      51.3%
+Huffman payload only                         15      38.5%
+Huffman .huf file (with table)               86     220.5%
+----------------------------------------------------------
+Average code length: 3.000 bits | Entropy limit: 2.926 bits
+Note: the code table makes the .huf file larger than the input. Huffman needs enough data to pay for its header.
+
+Current input: small.txt
+1. Choose input (sample, typed text or your file)
+2. Show frequency table
+3. Build tree: merge steps and Huffman codes
+4. Draw the Huffman tree
+5. Encode and show the bits
+6. Decode and verify
+7. Compress to a .huf file
+8. Decompress a .huf file
+9. Compare sizes
+10. Run performance analysis
+11. Exit
+Enter your choice: Saved /home/claude/Huffman_Capstone/results/output/small.huf
+Original: 39 bytes | Compressed file: 86 bytes | Saved: -120.5%
+
+Current input: small.txt
+1. Choose input (sample, typed text or your file)
+2. Show frequency table
+3. Build tree: merge steps and Huffman codes
+4. Draw the Huffman tree
+5. Encode and show the bits
+6. Decode and verify
+7. Compress to a .huf file
+8. Decompress a .huf file
+9. Compare sizes
+10. Run performance analysis
+11. Exit
+Enter your choice: Goodbye.

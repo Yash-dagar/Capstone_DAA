@@ -1,0 +1,32 @@
+Running performance analysis (each time is the average of 3 runs)
+
+A. Growing input size (k = 64 distinct symbols), times in ms
+        n        count   build tree       encode       decode
+     1000       0.0337       0.2100       0.0216       0.2180
+     5000       0.1838       0.2088       0.1045       1.1154
+    20000       0.8965       0.2188       0.4255       4.2334
+    50000       2.0229       0.2118       1.0685      10.7383
+   100000       3.9927       0.2101       2.2791      21.6627
+   200000       7.7321       0.2258       4.3694      42.6924
+
+B. Growing alphabet (n = 50000), times in ms
+        k        count   build tree       encode       decode
+        2       1.8725       0.0044       0.8126       2.3754
+        4       1.9071       0.0078       1.6512       4.1627
+        8       1.9483       0.0167       0.9845       6.0722
+       16       2.0235       0.0383       1.0677       7.6391
+       32       2.0978       0.1167       1.1436       9.3723
+       64       2.0326       0.2117       1.0559      10.6106
+      128       2.0971       0.5111       1.0898      12.1685
+      256       2.1036       1.1815       1.0667      13.3299
+
+C. Compression on the sample files (sizes in bytes)
+file             original   k  entropy  avg len    fixed  payload     .huf   saved%
+large.txt          158770  25    3.674    3.705    99231    73526    73657    53.6%
+medium.txt            746  47    4.351    4.394      559      410      651    12.7%
+random.bin          20000 256    7.992    8.000    20000    20000    21286    -6.4%
+repetitive.txt       8800   4    1.650    1.773     2200     1950     1976    77.5%
+small.txt              39  13    2.926    3.000       19       15       86  -120.5%
+unicode.txt          2820  42    4.926    4.979     2115     1755     1971    30.1%
+
+Saved CSV files and charts to /home/claude/Huffman_Capstone/results
