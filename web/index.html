@@ -5,93 +5,328 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Huffman Coding Studio</title>
 <style>
-:root{--bg:#eef2f4;--surf:#fff;--ink:#14232b;--mute:#5b6b74;--line:#d3dce1;--zero:#2b50e8;--one:#c97a00;--ok:#16794c;--bad:#b3261e;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f171c;--surf:#17222a;--ink:#e6eef2;--mute:#93a4ad;--line:#2b3b45;--zero:#7e98ff;--one:#f0b04a;--ok:#4cc38a;--bad:#ff8a80}}
-:root[data-theme="dark"]{--bg:#0f171c;--surf:#17222a;--ink:#e6eef2;--mute:#93a4ad;--line:#2b3b45;--zero:#7e98ff;--one:#f0b04a;--ok:#4cc38a;--bad:#ff8a80}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+:root{
+  --bg:#f4f1ea;--bg2:#ebe6db;--surf:#fffdf8;--surf2:#faf7f0;--ink:#1b2430;--mute:#677081;--line:#e1dacb;--line2:#cfc6b3;
+  --zero:#2f5be0;--zero-s:#e4eaff;--one:#c4700a;--one-s:#fdeccf;--ok:#17794d;--ok-s:#dff3e8;--bad:#b3261e;--bad-s:#fbe3e1;
+  --acc:#1b2430;--acc-ink:#fffdf8;--shadow:0 1px 2px rgba(40,30,10,.06),0 8px 24px -12px rgba(40,30,10,.18);
+  --serif:Georgia,"Iowan Old Style","Palatino Linotype",serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e141b;--bg2:#131b24;--surf:#16202a;--surf2:#1a2631;--ink:#e8eef3;--mute:#8d9cab;--line:#263544;--line2:#33475a;
+  --zero:#8aa4ff;--zero-s:#1d2a52;--one:#f2b45a;--one-s:#3a2b12;--ok:#52c890;--ok-s:#12332a;--bad:#ff8f86;--bad-s:#3b1a1a;
+  --acc:#e8eef3;--acc-ink:#0e141b;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -12px rgba(0,0,0,.6);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e141b;--bg2:#131b24;--surf:#16202a;--surf2:#1a2631;--ink:#e8eef3;--mute:#8d9cab;--line:#263544;--line2:#33475a;
+  --zero:#8aa4ff;--zero-s:#1d2a52;--one:#f2b45a;--one-s:#3a2b12;--ok:#52c890;--ok-s:#12332a;--bad:#ff8f86;--bad-s:#3b1a1a;
+  --acc:#e8eef3;--acc-ink:#0e141b;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -12px rgba(0,0,0,.6);color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:1000px;margin:0 auto;padding:28px 16px 64px}
-h1{font:600 clamp(2rem,6vw,3.2rem)/1.05 Georgia,"Iowan Old Style",serif;margin:0 0 8px;letter-spacing:-.01em}
-h2{font:600 1.25rem Georgia,serif;margin:0 0 10px}
-p.lead{color:var(--mute);max-width:62ch;margin:0 0 24px}
-section{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px}
-textarea{width:100%;min-height:120px;resize:vertical;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace}
-.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
-button,label.btn{font:inherit;font-weight:600;padding:9px 16px;border-radius:8px;border:1px solid var(--line);background:var(--surf);color:var(--ink);cursor:pointer}
-button.pri{background:var(--zero);border-color:var(--zero);color:#fff}
-:root[data-theme="dark"] button.pri{color:#0f171c}
-button:focus-visible,label.btn:focus-within,textarea:focus-visible{outline:3px solid var(--one);outline-offset:2px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.stat{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
-.stat b{display:block;font-size:1.5rem;font-variant-numeric:tabular-nums}
-.stat span{color:var(--mute);font-size:.85rem}
-.scroll{overflow-x:auto;max-width:100%}
-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);font-size:.92rem}
-td.c{font-family:ui-monospace,Menlo,monospace}
-.bits{font:13px/1.6 ui-monospace,Menlo,monospace;word-break:break-all;background:var(--bg);border-radius:8px;padding:10px;max-height:160px;overflow:auto}
-.z{color:var(--zero);font-weight:700}.o{color:var(--one);font-weight:700}
-.tag{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:600;font-size:.85rem;border:1px solid currentColor}
-.ok{color:var(--ok)}.bad{color:var(--bad)}
-svg text{fill:var(--ink);font:600 13px ui-monospace,Menlo,monospace}
-svg .edge{stroke:var(--line);stroke-width:2;fill:none}
-svg .e0{stroke:var(--zero)}svg .e1{stroke:var(--one)}
-svg .nd{fill:var(--surf);stroke:var(--ink);stroke-width:1.5}
-svg .lf{fill:var(--bg);stroke:var(--ink);stroke-width:1.5}
-svg .l0{fill:var(--zero)}svg .l1{fill:var(--one)}
-details{margin-top:8px}summary{cursor:pointer;font-weight:600}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:radial-gradient(1100px 420px at 85% -120px,color-mix(in srgb,var(--zero) 14%,transparent),transparent 70%),
+             radial-gradient(900px 380px at -10% -80px,color-mix(in srgb,var(--one) 14%,transparent),transparent 70%),var(--bg);
+  background-repeat:no-repeat;min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:1040px;margin:0 auto;padding:0 20px 80px}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;padding:20px 0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.01em}
+.logo{width:30px;height:30px;border-radius:9px;background:var(--acc);display:grid;place-items:center}
+.logo svg{width:18px;height:18px}
+.logo path{stroke:var(--acc-ink);stroke-width:2;fill:none;stroke-linecap:round}
+.logo circle{fill:var(--acc-ink)}
+#theme{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;font-size:.88rem}
+#theme svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* hero */
+.hero-t{padding:18px 0 28px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font:600 .78rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.eyebrow i{font-style:normal;padding:2px 8px;border-radius:99px;font-weight:700}
+.eyebrow .a{background:var(--zero-s);color:var(--zero)}.eyebrow .b{background:var(--one-s);color:var(--one)}
+h1{font:600 clamp(2.2rem,6.4vw,3.8rem)/1.02 var(--serif);letter-spacing:-.02em;margin:14px 0 14px}
+h1 em{font-style:italic;color:var(--zero)}
+p.lead{color:var(--mute);max-width:60ch;margin:0;font-size:1.06rem}
+p.lead .z,p.lead .o{font-family:var(--mono);font-size:.95em}
+
+/* cards */
+section{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:var(--shadow)}
+.sh{display:flex;align-items:baseline;gap:12px;margin:0 0 14px}
+.sh .n{font:700 .75rem var(--mono);color:var(--mute);border:1px solid var(--line2);border-radius:6px;padding:1px 7px}
+h2{font:600 1.35rem var(--serif);margin:0;letter-spacing:-.01em}
+.sh .sp{flex:1}
 .note{color:var(--mute);font-size:.88rem}
-.cx{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+
+/* input */
+#drop{position:relative;border-radius:12px;transition:box-shadow .15s}
+#drop.over{box-shadow:0 0 0 3px var(--zero)}
+#drop.over::after{content:"Drop a .txt file";position:absolute;inset:0;display:grid;place-items:center;border-radius:12px;background:color-mix(in srgb,var(--surf) 88%,transparent);font-weight:700;color:var(--zero)}
+textarea{display:block;width:100%;min-height:128px;resize:vertical;background:var(--surf2);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font:14.5px/1.6 var(--mono);transition:border-color .15s}
+textarea:hover{border-color:var(--line2)}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+.row .sp{flex:1}
+button,label.btn{font:inherit;font-weight:600;font-size:.92rem;padding:9px 16px;border-radius:10px;border:1px solid var(--line2);background:var(--surf);color:var(--ink);cursor:pointer;transition:transform .08s,background .15s,border-color .15s;display:inline-flex;align-items:center;gap:8px}
+button:hover,label.btn:hover{background:var(--surf2);border-color:var(--mute)}
+button:active,label.btn:active{transform:translateY(1px)}
+button.pri{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);padding:10px 22px}
+button.pri:hover{background:var(--acc);filter:brightness(1.15)}
+button.ghost{border-color:transparent;background:transparent;color:var(--mute)}
+button.ghost:hover{color:var(--ink);background:var(--surf2)}
+button.sm{padding:5px 11px;font-size:.82rem;border-radius:8px}
+button:focus-visible,label.btn:focus-within,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--one);outline-offset:2px}
+textarea:focus-visible{outline-offset:0;border-color:transparent}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{border:1px solid var(--line);background:var(--surf2);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font:600 1.6rem/1.15 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.stat span{color:var(--mute);font-size:.84rem}
+.stat.hero{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr;grid-template-areas:"l v" "m m" "s s";gap:4px 18px;align-items:end;background:var(--acc);color:var(--acc-ink);border:0}
+.stat.hero span{grid-area:l;color:inherit;opacity:.7;font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:.75rem;align-self:start}
+.stat.hero b{grid-area:v;font-size:clamp(2.4rem,7vw,3.6rem);line-height:1;justify-self:end;text-align:right}
+.stat.hero .meter{grid-area:m;height:10px;border-radius:99px;background:color-mix(in srgb,var(--acc-ink) 22%,transparent);overflow:hidden;margin-top:10px}
+.stat.hero .meter i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--zero),var(--one));transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.stat.hero small{grid-area:s;opacity:.7;font-size:.82rem}
+@media(min-width:720px){.stat.hero{grid-column:span 2;grid-row:span 2;align-content:space-between}}
+.callout{margin:14px 0 0;padding:10px 14px;border-left:3px solid var(--one);background:var(--one-s);border-radius:0 10px 10px 0;color:var(--ink);font-size:.88rem}
+
+/* tree */
+.scroll{overflow-x:auto;max-width:100%}
+#tree{background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+#tree svg{display:inline-block}
+svg text{fill:var(--ink);font:600 13px var(--mono)}
+svg .edge{stroke:var(--line2);stroke-width:2;fill:none;stroke-linecap:round}
+svg .e0{stroke:var(--zero)}svg .e1{stroke:var(--one)}
+svg .eb{stroke-width:0}svg .b0{fill:var(--zero-s)}svg .b1{fill:var(--one-s)}
+svg .el{font-size:11px;font-weight:700}
+svg .b0+.el{fill:var(--zero)}svg .b1+.el{fill:var(--one)}
+svg .nd{fill:var(--surf);stroke:var(--line2);stroke-width:1.5}
+svg .nf{font-size:11px;fill:var(--mute)}
+svg .lf{fill:var(--acc);stroke:none}
+svg .sym{fill:var(--acc-ink);font-size:15px}
+svg .fr{font-size:11px;fill:var(--mute)}
+svg .leafg{transition:transform .15s;transform-box:fill-box;transform-origin:center}
+svg .leafg:hover{transform:scale(1.1)}
+details{margin-top:14px;border:1px solid var(--line);border-radius:12px;background:var(--surf2)}
+summary{cursor:pointer;font-weight:600;padding:11px 16px;list-style:none;display:flex;align-items:center;gap:8px;font-size:.93rem}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"›";display:inline-block;transition:transform .15s;font-size:1.2rem;line-height:1;color:var(--mute)}
+details[open] summary::before{transform:rotate(90deg)}
+#steps{padding:0 16px 14px;max-height:220px;overflow:auto;font:13px/1.8 var(--mono);color:var(--mute)}
+#steps ol{margin:0;padding-left:26px}
+#steps li::marker{color:var(--mute)}
+
+/* two-column */
+.cols{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:900px){.cols{grid-template-columns:1.1fr .9fr;align-items:start}}
+.cols>section{margin:0}
+
+/* table */
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th{font:700 .72rem var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--mute);text-align:left;padding:0 10px 8px;border-bottom:1px solid var(--line2);white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid var(--line);font-size:.92rem}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--surf2)}
+th.n,td.n{text-align:right}
+td.c{font-family:var(--mono);font-size:.88rem;white-space:nowrap}
+kbd{font:600 .88rem var(--mono);background:var(--bg2);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 8px;min-width:28px;display:inline-block;text-align:center}
+td.use{min-width:120px}
+.bar{display:inline-block;vertical-align:middle;width:calc(100% - 38px);height:8px;background:var(--bg2);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--zero),var(--one));border-radius:99px}
+td.use em{font-style:normal;display:inline-block;width:34px;text-align:right;color:var(--mute);font-size:.82rem}
+
+/* bits */
+.bits{font:13px/1.8 var(--mono);word-break:break-all;background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;max-height:220px;overflow:auto;letter-spacing:.04em}
+.z{color:var(--zero);font-weight:700}.o{color:var(--one);font-weight:700}
+.tag{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:99px;font-weight:600;font-size:.86rem}
+.tag::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.tag.ok{background:var(--ok-s);color:var(--ok)}.tag.bad{background:var(--bad-s);color:var(--bad)}
+#dout{margin-top:12px;font:14px/1.6 var(--mono);min-height:52px;color:var(--ink);letter-spacing:0;white-space:pre-wrap}
+
+/* complexity */
+.cx{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.cx>div{border:1px solid var(--line);background:var(--surf2);border-radius:12px;padding:16px}
+.cx h3{margin:0 0 4px;font:700 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.cx .big{display:block;font:600 1.5rem var(--serif);margin-bottom:6px}
+#perf dl{display:grid;grid-template-columns:1fr auto;gap:2px 12px;margin:0 0 6px;font-size:.92rem}
+#perf dt{color:var(--mute)}#perf dd{margin:0;font:600 .92rem var(--mono);text-align:right}
+
+footer{color:var(--mute);font-size:.82rem;text-align:center;padding:12px 0 0}
+
+#out>section{animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
+#out>section:nth-child(2){animation-delay:.05s}#out>section:nth-child(3){animation-delay:.1s}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+@media(max-width:560px){main{padding:0 14px 60px}section{padding:16px;border-radius:14px}.stat.hero{grid-template-columns:1fr;grid-template-areas:"l" "v" "m" "s"}.stat.hero b{justify-self:start;text-align:left}}
+
+/* ===== JOYFUL THEME ===== */
+:root{
+  --bg:#fff6e9;--bg2:#ffe9d2;--surf:#ffffff;--surf2:#fff9f1;--ink:#2a1b4d;--mute:#7a6a99;--line:#f1dcc4;--line2:#e2c4a3;
+  --zero:#3b6cff;--zero-s:#dfe8ff;--one:#ff7a1a;--one-s:#ffe6d0;--ok:#0f9d63;--ok-s:#d6f8e6;--bad:#e03a4e;--bad-s:#ffe0e4;
+  --acc:#7c3aed;--acc-ink:#ffffff;--pink:#ff4f9a;--mint:#16c79a;--sun:#ffc83d;--sky:#38bdf8;
+  --shadow:0 4px 0 rgba(42,27,77,.10),0 14px 30px -14px rgba(124,58,237,.35)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1c1038;--bg2:#2a1855;--surf:#2a1b52;--surf2:#33226a;--ink:#fff4ff;--mute:#c3b0ee;--line:#47318a;--line2:#5b43a8;
+  --zero:#7fb0ff;--zero-s:#27407f;--one:#ffb04d;--one-s:#5a3a1a;--ok:#5ef0b0;--ok-s:#14513f;--bad:#ff8fa0;--bad-s:#5a1f33;
+  --acc:#ff6bb5;--acc-ink:#2a1b4d;--shadow:0 4px 0 rgba(0,0,0,.25),0 14px 30px -14px rgba(0,0,0,.6)}}
+:root[data-theme="dark"]{
+  --bg:#1c1038;--bg2:#2a1855;--surf:#2a1b52;--surf2:#33226a;--ink:#fff4ff;--mute:#c3b0ee;--line:#47318a;--line2:#5b43a8;
+  --zero:#7fb0ff;--zero-s:#27407f;--one:#ffb04d;--one-s:#5a3a1a;--ok:#5ef0b0;--ok-s:#14513f;--bad:#ff8fa0;--bad-s:#5a1f33;
+  --acc:#ff6bb5;--acc-ink:#2a1b4d;--shadow:0 4px 0 rgba(0,0,0,.25),0 14px 30px -14px rgba(0,0,0,.6)}
+body{background:
+  radial-gradient(600px 400px at 90% 0,color-mix(in srgb,var(--pink) 30%,transparent),transparent 70%),
+  radial-gradient(700px 450px at 0 8%,color-mix(in srgb,var(--sky) 30%,transparent),transparent 70%),
+  radial-gradient(700px 500px at 100% 55%,color-mix(in srgb,var(--sun) 28%,transparent),transparent 70%),
+  radial-gradient(700px 500px at 0 90%,color-mix(in srgb,var(--mint) 25%,transparent),transparent 70%),var(--bg);
+  background-attachment:fixed}
+h1,h2,.stat b,.cx .big{font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;font-weight:800}
+h1{font-size:clamp(2.4rem,7vw,4.2rem);letter-spacing:-.03em}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--pink),var(--one),var(--sun));-webkit-background-clip:text;background-clip:text;color:transparent}
+h1::after{content:" 🌳";font-size:.8em}
+.logo{background:linear-gradient(135deg,var(--pink),var(--acc));border-radius:12px;transform:rotate(-6deg)}
+.logo path{stroke:#fff}.logo circle{fill:#fff}
+.eyebrow i{font-size:.8rem;padding:4px 12px;box-shadow:0 2px 0 rgba(42,27,77,.12)}
+p.lead{font-size:1.12rem;color:var(--ink);opacity:.8}
+
+section{border:2px solid var(--ink);border-radius:22px;box-shadow:5px 5px 0 var(--ink);position:relative}
+:root[data-theme="dark"] section{border-color:var(--line2);box-shadow:5px 5px 0 rgba(0,0,0,.35)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) section{border-color:var(--line2);box-shadow:5px 5px 0 rgba(0,0,0,.35)}}
+.sh .n{border:0;color:#fff;font-size:.8rem;padding:3px 10px;border-radius:99px}
+section:nth-of-type(1) .sh .n,#out>section:nth-child(1) .sh .n{background:var(--pink)}
+.sh .n{background:var(--acc)}
+#out>section:nth-child(1) .sh .n{background:var(--mint)}
+#out>section:nth-child(2) .sh .n{background:var(--sky)}
+.cols>section:nth-child(1) .sh .n{background:var(--one)}
+.cols>section:nth-child(2) .sh .n{background:var(--pink)}
+.cols~section .sh .n{background:var(--acc)}
+h2{font-size:1.45rem}
+h2::after{margin-left:8px}
+.sh:has(+ #drop) h2::after{content:"✏️"}
+#out>section:nth-child(1) h2::after{content:"📊"}
+#out>section:nth-child(2) h2::after{content:"🌲"}
+.cols>section:nth-child(1) h2::after{content:"🔑"}
+.cols>section:nth-child(2) h2::after{content:"💾"}
+
+textarea{background:var(--surf2);border:2px solid var(--line2);border-radius:14px}
+textarea:focus-visible{border-color:var(--acc);outline:3px solid color-mix(in srgb,var(--acc) 35%,transparent)}
+button,label.btn{border:2px solid var(--ink);border-radius:999px;box-shadow:0 3px 0 var(--ink);padding:9px 18px;font-weight:700;background:var(--surf);color:var(--ink)}
+:root[data-theme="dark"] button,:root[data-theme="dark"] label.btn{border-color:#000;box-shadow:0 3px 0 #000;color:var(--ink)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button,:root:not([data-theme="light"]) label.btn{border-color:#000;box-shadow:0 3px 0 #000}}
+button:hover,label.btn:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--ink);background:var(--sun);color:#2a1b4d;border-color:#2a1b4d}
+:root[data-theme="dark"] button:hover,:root[data-theme="dark"] label.btn:hover{box-shadow:0 5px 0 #000}
+button:active,label.btn:active{transform:translateY(3px);box-shadow:0 0 0 var(--ink)}
+button.pri{background:linear-gradient(135deg,var(--pink),var(--acc));color:#fff;border-color:#2a1b4d;font-size:1rem;padding:11px 26px}
+button.pri:hover{filter:none;background:linear-gradient(135deg,var(--one),var(--pink));color:#fff}
+button.ghost{box-shadow:none;border-color:transparent;background:transparent;color:var(--mute)}
+button.ghost:hover{box-shadow:none;background:var(--surf2);transform:none;color:var(--ink)}
+#theme{background:var(--surf)}
+
+.stat{border:2px solid var(--line2);border-radius:16px;background:var(--surf2)}
+.stat b{font-weight:800}
+.stats .stat:nth-child(2){background:var(--zero-s);border-color:transparent}
+.stats .stat:nth-child(3){background:var(--one-s);border-color:transparent}
+.stats .stat:nth-child(4){background:var(--ok-s);border-color:transparent}
+.stats .stat:nth-child(5){background:color-mix(in srgb,var(--pink) 18%,var(--surf));border-color:transparent}
+.stats .stat:nth-child(6){background:color-mix(in srgb,var(--sun) 35%,var(--surf));border-color:transparent}
+.stat.hero{background:linear-gradient(135deg,var(--acc),var(--pink) 60%,var(--one));color:#fff;border:2px solid var(--ink)}
+.stat.hero .meter{background:rgba(255,255,255,.3)}
+.stat.hero .meter i{background:#fff}
+.stat.hero b{text-shadow:0 3px 0 rgba(0,0,0,.18)}
+.callout{border-left:0;border:2px dashed var(--one);border-radius:14px;background:var(--one-s)}
+.callout::before{content:"💡 "}
+
+#tree{background:linear-gradient(180deg,var(--surf2),color-mix(in srgb,var(--sky) 14%,var(--surf)));border:2px solid var(--line2);border-radius:16px}
+svg .lf{stroke:none}
+svg g:nth-of-type(4n+1) .lf{fill:var(--pink)}
+svg g:nth-of-type(4n+2) .lf{fill:var(--zero)}
+svg g:nth-of-type(4n+3) .lf{fill:var(--mint)}
+svg g:nth-of-type(4n) .lf{fill:var(--one)}
+svg .sym{fill:#fff;font-size:15px}
+svg .nd{fill:var(--sun);stroke:var(--ink);stroke-width:2}
+svg .nf{fill:#2a1b4d;font-weight:800}
+svg .edge{stroke-width:2.5}
+svg .eb{stroke:var(--surf);stroke-width:2}
+svg .fr{fill:var(--mute);font-weight:700}
+svg .leafg:hover{transform:scale(1.18) rotate(-4deg)}
+details{border:2px solid var(--line2);border-radius:14px}
+
+th{color:var(--acc)}
+:root[data-theme="dark"] th{color:var(--sun)}
+kbd{background:var(--sun);color:#2a1b4d;border:2px solid #2a1b4d;border-bottom-width:3px;border-radius:8px}
+tbody tr:hover td{background:color-mix(in srgb,var(--sun) 22%,transparent)}
+.bar{height:10px;background:var(--bg2)}
+.bar i{background:linear-gradient(90deg,var(--pink),var(--one),var(--sun))}
+.bits{border:2px solid var(--line2);border-radius:14px}
+.tag{font-size:.92rem;padding:7px 16px;border:2px solid currentColor}
+.tag.ok::before{content:"✓";width:auto;height:auto;background:none;font-weight:900}
+.tag.bad::before{content:"✕";width:auto;height:auto;background:none;font-weight:900}
+.cx>div{border:2px solid transparent;border-radius:16px}
+.cx>div:nth-child(1){background:var(--zero-s)}
+.cx>div:nth-child(2){background:var(--ok-s)}
+.cx>div:nth-child(3){background:var(--one-s)}
+.cx h3{color:var(--ink);opacity:.7}
+footer{font-size:.9rem}footer::before{content:"✨ "}footer::after{content:" ✨"}
+#out>section{animation:pop .5s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}}
+@media(max-width:560px){section{box-shadow:3px 3px 0 var(--ink);border-radius:18px}}
 </style>
 </head>
 <body>
 <main>
-<h1>Huffman Coding Studio</h1>
-<p class="lead">Type or upload text, then watch it become a frequency table, a Huffman tree, a stream of bits, and back again. Left branches are 0, right branches are 1.</p>
+<header class="top">
+  <div class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2.3"/><circle cx="5.5" cy="19" r="2.3"/><circle cx="18.5" cy="19" r="2.3"/><path d="M12 7 5.5 16.7M12 7l6.5 9.7"/></svg></span>Huffman Studio</div>
+  <button id="theme" aria-label="Toggle theme" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span>Dark</span></button>
+</header>
+
+<div class="hero-t">
+  <div class="eyebrow"><i class="a">0 = left</i><i class="b">1 = right</i></div>
+  <h1>Huffman Coding <em>Studio</em></h1>
+  <p class="lead">Type or upload text and watch it become a frequency table, a Huffman tree, a stream of bits, and back again. Left branches are <span class="z">0</span>, right branches are <span class="o">1</span>.</p>
+</div>
 
 <section>
-<h2>Input</h2>
-<textarea id="inp" aria-label="Text to compress" spellcheck="false">abracadabra alakazam! a banana bandana</textarea>
+<div class="sh"><span class="n">01</span><h2>Input</h2><span class="sp"></span><span class="note" id="count"></span></div>
+<div id="drop"><textarea id="inp" aria-label="Text to compress" spellcheck="false">abracadabra alakazam! a banana bandana</textarea></div>
 <div class="row">
 <button class="pri" id="go">Compress</button>
 <label class="btn">Upload .txt<input id="file" type="file" accept=".txt,text/plain" hidden></label>
 <button id="sample">Load longer sample</button>
-<button id="theme" aria-label="Toggle theme">Theme</button>
+<span class="sp"></span>
+<button class="ghost sm" id="clear">Clear</button>
 </div>
 </section>
 
 <div id="out" hidden>
-<section><h2>Size comparison</h2><div class="stats" id="stats"></div>
-<p class="note" id="hdrnote"></p></section>
+<section><div class="sh"><span class="n">02</span><h2>Size comparison</h2></div><div class="stats" id="stats"></div>
+<p class="callout" id="hdrnote"></p></section>
 
-<section><h2>Huffman tree</h2>
+<section><div class="sh"><span class="n">03</span><h2>Huffman tree</h2></div>
 <div class="scroll" id="tree"></div>
-<details><summary>Merge steps</summary><div class="bits" id="steps"></div></details></section>
+<details><summary>Merge steps</summary><div id="steps"></div></details></section>
 
-<section><h2>Code table</h2><div class="scroll"><table id="tbl"></table></div></section>
+<div class="cols">
+<section><div class="sh"><span class="n">04</span><h2>Code table</h2></div><div class="scroll"><table id="tbl"></table></div></section>
 
-<section><h2>Encoded bits</h2><div class="bits" id="enc"></div>
+<section><div class="sh"><span class="n">05</span><h2>Encoded bits</h2><span class="sp"></span><button class="sm" id="copy">Copy bits</button></div><div class="bits" id="enc"></div>
 <div class="row"><span id="verify"></span></div></section>
+</div>
 
-<section><h2>Decode bits</h2>
-<textarea id="dinp" aria-label="Bits to decode" placeholder="Paste bits (0s and 1s) here" spellcheck="false"></textarea>
-<div class="row"><button id="dec">Decode with this tree</button></div>
-<div class="bits" id="dout" style="margin-top:10px">Decoded text appears here.</div></section>
+<section><div class="sh"><span class="n">06</span><h2>Decode bits</h2></div>
+<textarea id="dinp" aria-label="Bits to decode" placeholder="Paste bits (0s and 1s) here" spellcheck="false" style="min-height:90px"></textarea>
+<div class="row"><button class="pri" id="dec">Decode with this tree</button></div>
+<div class="bits" id="dout">Decoded text appears here.</div></section>
 
-<section><h2>Complexity</h2>
+<section><div class="sh"><span class="n">07</span><h2>Complexity</h2></div>
 <div class="cx">
-<div><b>Time</b><br>O(n + k log k)<br><span class="note">n characters, k distinct. Counting is O(n); the heap does k−1 merges at O(log k) each; encoding is O(n).</span></div>
-<div><b>Space</b><br>O(k)<br><span class="note">The tree has 2k−1 nodes. The output stream itself takes O(n) bits.</span></div>
-<div><b>Measured</b><br><span id="perf">–</span></div>
+<div><h3>Time</h3><span class="big">O(n + k log k)</span><span class="note">n characters, k distinct. Counting is O(n); the heap does k−1 merges at O(log k) each; encoding is O(n).</span></div>
+<div><h3>Space</h3><span class="big">O(k)</span><span class="note">The tree has 2k−1 nodes. The output stream itself takes O(n) bits.</span></div>
+<div><h3>Measured</h3><div id="perf">–</div></div>
 </div></section>
 </div>
+<footer>Runs entirely in your browser. Nothing is uploaded.</footer>
 </main>
 <script>
 (function(){
 const $=id=>document.getElementById(id);
-let id=0,root=null,codes=new Map();
+let id=0,root=null,codes=new Map(),lastBits='';
 class Heap{constructor(){this.a=[]}
 lt(x,y){return x.f<y.f||(x.f===y.f&&x.id<y.id)}
 push(n){const a=this.a;a.push(n);let i=a.length-1;while(i>0){const p=(i-1)>>1;if(!this.lt(a[i],a[p]))break;[a[i],a[p]]=[a[p],a[i]];i=p}}
@@ -122,21 +357,23 @@ function decode(bits,r){let out=[],n=r;
   return out.join('');}
 
 function drawTree(r){
-  let leaf=0,maxD=0;const X=46,Y=64;
+  let leaf=0,maxD=0;const X=52,Y=72;
   (function lay(n,d){maxD=Math.max(maxD,d);n.d=d;
     if(n.c!==undefined){n.x=leaf++*X;return}
     const kids=[n.l,n.r].filter(Boolean);kids.forEach(k=>lay(k,d+1));
     n.x=kids.reduce((s,k)=>s+k.x,0)/kids.length})(r,0);
-  const W=Math.max(leaf*X+40,300),H=(maxD+1)*Y+40;let e='',v='';
-  (function dr(n){const x=n.x+30,y=n.d*Y+28;
-    [[n.l,0],[n.r,1]].forEach(([k,b])=>{if(!k)return;const kx=k.x+30,ky=k.d*Y+28;
-      e+='<path class="edge e'+b+'" d="M'+x+' '+y+' L'+kx+' '+ky+'"/>';
-      e+='<text class="l'+b+'" x="'+((x+kx)/2+(b?9:-9))+'" y="'+((y+ky)/2+4)+'" text-anchor="middle" style="fill:var(--'+(b?'one':'zero')+')">'+b+'</text>';
+  const W=Math.max(leaf*X+40,300),H=(maxD+1)*Y+36;let e='',v='';
+  (function dr(n){const x=n.x+30,y=n.d*Y+30;
+    [[n.l,0],[n.r,1]].forEach(([k,b])=>{if(!k)return;const kx=k.x+30,ky=k.d*Y+30;
+      const my=(y+ky)/2;
+      e+='<path class="edge e'+b+'" d="M'+x+' '+y+' C'+x+' '+my+' '+kx+' '+my+' '+kx+' '+ky+'"/>';
+      const bx=x+(kx-x)*.5,by=my;
+      e+='<circle class="eb b'+b+'" cx="'+bx+'" cy="'+by+'" r="9"/><text class="el" x="'+bx+'" y="'+(by+4)+'" text-anchor="middle">'+b+'</text>';
       dr(k)});
-    if(n.c!==undefined)v+='<rect class="lf" x="'+(x-17)+'" y="'+(y-15)+'" width="34" height="30" rx="6"/><text x="'+x+'" y="'+(y+4)+'" text-anchor="middle">'+esc(show(n.c))+'</text><text x="'+x+'" y="'+(y+28)+'" text-anchor="middle" style="font-size:11px;fill:var(--mute)">'+n.f+'</text>';
-    else v+='<circle class="nd" cx="'+x+'" cy="'+y+'" r="15"/><text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" style="font-size:11px">'+n.f+'</text>';
+    if(n.c!==undefined)v+='<g class="leafg"><title>"'+esc(show(n.c))+'" appears '+n.f+'×</title><rect class="lf" x="'+(x-19)+'" y="'+(y-16)+'" width="38" height="32" rx="9"/><text class="sym" x="'+x+'" y="'+(y+5)+'" text-anchor="middle">'+esc(show(n.c))+'</text><text class="fr" x="'+x+'" y="'+(y+32)+'" text-anchor="middle">'+n.f+'</text></g>';
+    else v+='<g><title>Internal node, total frequency '+n.f+'</title><circle class="nd" cx="'+x+'" cy="'+y+'" r="16"/><text class="nf" x="'+x+'" y="'+(y+4)+'" text-anchor="middle">'+n.f+'</text></g>';
   })(r);
-  $('tree').innerHTML='<svg width="'+W+'" height="'+H+'" role="img" aria-label="Huffman tree">'+e+v+'</svg>';
+  $('tree').innerHTML='<svg style="width:100%;max-width:'+W+'px;min-width:'+Math.min(W,760)+'px;height:auto" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Huffman tree">'+e+v+'</svg>';
 }
 
 function run(){
@@ -147,35 +384,49 @@ function run(){
   const T=build(chars);root=T.root;codes=T.codes;
   const t1=performance.now();
   const parts=new Array(chars.length);for(let i=0;i<chars.length;i++)parts[i]=codes.get(chars[i]);
-  const bits=parts.join('');
+  const bits=parts.join('');lastBits=bits;
   const t2=performance.now();
   let back,ok=false;try{back=decode(bits,root);ok=back===text}catch(e){back=''}
   const t3=performance.now();
   const origBits=new TextEncoder().encode(text).length*8,k=codes.size;
   const hdr=k*16,total=bits.length+hdr;
   const pct=(1-bits.length/origBits)*100;
-  const S=(v,l)=>'<div class="stat"><b>'+v+'</b><span>'+l+'</span></div>';
-  $('stats').innerHTML=S(origBits.toLocaleString(),'original bits (UTF-8)')+S(bits.length.toLocaleString(),'compressed bits')+S(pct.toFixed(1)+'%','space saved')+S((origBits/bits.length).toFixed(2)+'×','compression ratio')+S(k,'distinct symbols')+S((bits.length/chars.length).toFixed(2),'avg bits per symbol');
+  const S=(v,l,c)=>'<div class="stat '+(c||'')+'"><b>'+v+'</b><span>'+l+'</span></div>';
+  const keep=Math.max(0,Math.min(100,100-pct));
+  $('stats').innerHTML='<div class="stat hero"><span>Space saved</span><b>'+pct.toFixed(1)+'%</b><div class="meter" role="img" aria-label="Compressed size is '+keep.toFixed(0)+' percent of original"><i style="width:'+keep+'%"></i></div><small>'+bits.length.toLocaleString()+' of '+origBits.toLocaleString()+' bits remain</small></div>'+S(origBits.toLocaleString(),'original bits (UTF-8)')+S(bits.length.toLocaleString(),'compressed bits')+S((origBits/bits.length).toFixed(2)+'×','compression ratio')+S(k,'distinct symbols')+S((bits.length/chars.length).toFixed(2),'avg bits per symbol');
   $('hdrnote').textContent='Estimated with a stored code table (about 16 bits per symbol): '+total.toLocaleString()+' bits total, '+((1-total/origBits)*100).toFixed(1)+'% saved. Very short texts can come out larger once the table is counted.';
   drawTree(root);
-  $('steps').innerHTML=T.steps.length?T.steps.map((s,i)=>(i+1)+'. '+esc(s)).join('<br>'):'Only one distinct symbol, so no merges were needed.';
+  $('steps').innerHTML=T.steps.length?'<ol>'+T.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>':'Only one distinct symbol, so no merges were needed.';
   const rows=[...codes].sort((a,b)=>T.freq.get(b[0])-T.freq.get(a[0])||a[1].length-b[1].length);
-  $('tbl').innerHTML='<tr><th>Symbol</th><th>Frequency</th><th>Code</th><th>Code length</th><th>Bits used</th></tr>'+rows.map(([c,cd])=>'<tr><td>'+esc(show(c))+'</td><td>'+T.freq.get(c)+'</td><td class="c">'+colorBits(cd)+'</td><td>'+cd.length+'</td><td>'+cd.length*T.freq.get(c)+'</td></tr>').join('');
+  const mx=Math.max(...rows.map(([c,cd])=>cd.length*T.freq.get(c)));
+  $('tbl').innerHTML='<thead><tr><th>Symbol</th><th class="n">Freq</th><th>Code</th><th class="n">Len</th><th>Bits used</th></tr></thead><tbody>'+rows.map(([c,cd])=>{const u=cd.length*T.freq.get(c);return '<tr><td><kbd>'+esc(show(c))+'</kbd></td><td class="n">'+T.freq.get(c)+'</td><td class="c">'+colorBits(cd)+'</td><td class="n">'+cd.length+'</td><td class="use"><span class="bar"><i style="width:'+(u/mx*100).toFixed(1)+'%"></i></span><em>'+u+'</em></td></tr>'}).join('')+'</tbody>';
   const LIM=3000;
   $('enc').innerHTML=colorBits(bits.slice(0,LIM))+(bits.length>LIM?'<br><span class="note">…showing first '+LIM+' of '+bits.length.toLocaleString()+' bits</span>':'');
   $('verify').innerHTML=ok?'<span class="tag ok">Round trip verified: decoded text matches the original</span>':'<span class="tag bad">Decoded text does not match</span>';
   $('dinp').value=bits.slice(0,200);
   $('dout').textContent='Decoded text appears here.';
-  $('perf').innerHTML='Build tree: '+(t1-t0).toFixed(2)+' ms<br>Encode: '+(t2-t1).toFixed(2)+' ms<br>Decode: '+(t3-t2).toFixed(2)+' ms<br><span class="note">n = '+chars.length.toLocaleString()+', k = '+k+'</span>';
+  $('perf').innerHTML='<dl><dt>Build tree</dt><dd>'+(t1-t0).toFixed(2)+' ms</dd><dt>Encode</dt><dd>'+(t2-t1).toFixed(2)+' ms</dd><dt>Decode</dt><dd>'+(t3-t2).toFixed(2)+' ms</dd></dl><span class="note">n = '+chars.length.toLocaleString()+', k = '+k+'</span>';
   $('out').hidden=false;
 }
 $('go').onclick=run;
 $('dec').onclick=()=>{if(!root){$('dout').textContent='Compress some text first.';return}
   try{$('dout').textContent=decode($('dinp').value,root)||'(nothing decoded; add more bits)'}catch(e){$('dout').textContent=e.message}};
 $('file').onchange=e=>{const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();r.onload=()=>{$('inp').value=r.result;run()};r.readAsText(f)};
-$('sample').onclick=()=>{$('inp').value=('It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness. ').repeat(6);run()};
-$('theme').onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue('--bg').trim()==='#0f171c';d.setAttribute('data-theme',dark?'light':'dark')};
+  const r=new FileReader();r.onload=()=>{$('inp').value=r.result;$('inp').dispatchEvent(new Event('input'));run()};r.readAsText(f);e.target.value=''};
+$('sample').onclick=()=>{$('inp').dispatchEvent(new Event('input'));$('inp').value=('It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness. ').repeat(6);$('inp').dispatchEvent(new Event('input'));run()};
+const mq=matchMedia('(prefers-color-scheme: dark)');
+const isDark=()=>{const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':mq.matches};
+const paintTheme=()=>{$('theme').setAttribute('aria-pressed',isDark());$('theme').querySelector('span').textContent=isDark()?'Light':'Dark'};
+$('theme').onclick=()=>{document.documentElement.setAttribute('data-theme',isDark()?'light':'dark');paintTheme()};
+mq.addEventListener&&mq.addEventListener('change',paintTheme);paintTheme();
+const count=()=>{const t=$('inp').value;$('count').textContent=Array.from(t).length.toLocaleString()+' characters'};
+$('inp').addEventListener('input',count);count();
+const dz=$('drop');
+['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over')}));
+dz.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('inp').value=r.result;count();run()};r.readAsText(f)});
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText(lastBits);$('copy').textContent='Copied';}catch(e){$('copy').textContent='Copy failed'}setTimeout(()=>$('copy').textContent='Copy bits',1400)};
+$('clear').onclick=()=>{$('inp').value='';count();$('inp').focus()};
 run();
 })();
 </script>
